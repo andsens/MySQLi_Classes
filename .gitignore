@@ -1,0 +1,6 @@
+build.properties
+.DS_Store
+.ant-targets-build.xml
+.buildpath
+.project
+.settings/

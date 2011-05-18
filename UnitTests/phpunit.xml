@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit backupGlobals="false"
+         backupStaticAttributes="false"
+         bootstrap="bootstrap.php">
+	<testsuites>
+		<testsuite name="Statements">
+			<directory>Statements</directory>
+		</testsuite>
+	</testsuites>
+</phpunit>

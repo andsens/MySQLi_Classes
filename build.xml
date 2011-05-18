@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="MySQLi_Classes" default="test" basedir=".">
+	<property file="build.properties" />
+
+	<target name="loc" description="Counts the lines of PHP code in the project.">
+		<echo>Counting lines of code</echo>
+		<exec dir="${reportdir}" executable="${phploc.executable}" searchpath="true">
+			<arg line="--log-xml ${phploc.outputfile}" />
+			<arg line="--suffixes php" />
+			<arg value="${srcdir}" />
+		</exec>
+	</target>
+	
+	<target name="cpd" description="Detects copy &amp; paste code.">
+		<echo>Detecting copy&amp;pasted code lines of code</echo>
+		<exec dir="${reportdir}" executable="${phpcpd.executable}" searchpath="true">
+			<arg line="--log-pmd ${phpcpd.outputfile}" />
+			<arg line="--min-lines 3" />
+			<arg line="--min-tokens 15" />
+			<arg line="--suffixes php" />
+			<arg value="${srcdir}" />
+		</exec>
+	</target>
+	
+	<target name="dep" description="Runs a dependency analysis.">
+		<echo>Running code dependency analysis</echo>
+		<mkdir dir="${pdepend.outputdir}"/>
+		<exec dir="${reportdir}" executable="${pdepend.executable}" searchpath="true">
+			<arg line="--jdepend-chart=${pdepend.outputdir}/chart.svg" />
+			<arg line="--jdepend-xml=${pdepend.outputdir}/log.xml" />
+			<arg line="--overview-pyramid=${pdepend.outputdir}/pyramid.svg" />
+			<arg line="--phpunit-xml=${pdepend.outputdir}/metrics.xml" />
+			<arg line="--summary-xml=${pdepend.outputdir}/summary.xml" />
+			<arg value="${srcdir}" />
+		</exec>
+	</target>
+	
+	<target name="dcd" description="Detects dead code">
+		<echo>Detecing dead code.</echo>
+		<exec dir="${srcdir}" executable="${phpdcd.executable}" searchpath="true" output="${phpdcd.outputfile}">
+			<arg value="--recursive" />
+			<arg line="--suffixes php" />
+			<arg value="${srcdir}" />
+		</exec>
+	</target>
+	
+	<target name="doc" description="Generates phpdoctor documentation">
+		<echo>Generating documentation</echo>
+		<exec dir="${srcdir}" executable="${phpdoctor.executable}" osfamily="unix">
+			<arg value="${phpdoctor.configfile}" />
+		</exec>
+		<exec dir="${srcdir}" executable="${php.executable}" osfamily="windows" searchpath="true">
+			<arg value="${phpdoctor.executable}" />
+			<arg value="${phpdoctor.configfile}" />
+		</exec>
+	</target>
+	
+	<target name="test" description="Runs the unit tests while generating agile documentation.">
+		<antcall target="tables" />
+		<echo>Running PHPUnit tests</echo>
+		<condition property="filter" value="--filter ${tests}" else="">
+		      <isset property="tests"/>
+		</condition>
+		<exec dir="${basedir}" executable="${phpunit.executable}" osfamily="unix">
+			<arg value="--colors" />
+			<arg line="${filter}" />
+			<arg line="--testdox-html ${phpunit.agiledoc.outputfile}" />
+			<arg line="--configuration ${phpunit.config}" />
+		</exec>
+		<exec dir="${basedir}" executable="${phpunit.executable}" searchpath="true" osfamily="windows">
+			<arg line="${filter}" />
+			<arg line="--testdox-html ${phpunit.agiledoc.outputfile}" />
+			<arg line="--configuration ${phpunit.config}" />
+		</exec>
+		<antcall target="drop" />
+	</target>
+	
+	<target name="coverage" description="Runs the unit tests while generating coverage reports.">
+		<antcall target="tables" />
+		<echo>Running PHPUnit tests with code coverage</echo>
+		<mkdir dir="${phpunit.coverage.outputdir}"/>
+		<exec dir="${basedir}" executable="${phpunit.executable}" osfamily="unix">
+			<arg value="--colors" />
+			<arg line="--coverage-html ${phpunit.coverage.outputdir}" />
+			<arg line="--configuration ${phpunit.config}" />
+		</exec>
+		<exec dir="${basedir}" executable="${phpunit.executable}" searchpath="true" osfamily="windows">
+			<arg line="--coverage-html ${phpunit.coverage.outputdir}" />
+			<arg line="--configuration ${phpunit.config}" />
+		</exec>
+		<antcall target="drop" />
+	</target>
+	
+	<target name="profile" description="Runs the unit tests while profiling.">
+		<antcall target="tables" />
+		<echo>Running PHPUnit tests while profiling</echo>
+		<mkdir dir="${xdebug.profilingdir}"/>
+		<exec dir="${testdir}" executable="${php.executable}" osfamily="unix">
+			<arg value="-d xdebug.profiler_enable=on" />
+			<arg value="-d xdebug.profiler_output_dir=${report.profiling.dir}" />
+			<arg value="-d xdebug.profiler_output_name=cachegrind.out.%t" />
+			<arg line="phpunit.php" />
+			<arg value="--colors" />
+		</exec>
+		<exec dir="${testdir}" executable="${php.executable}" searchpath="true" osfamily="windows">
+			<arg value="-d xdebug.profiler_enable=on" />
+			<arg value="-d xdebug.profiler_output_dir=${report.profiling.dir}" />
+			<arg value="-d xdebug.profiler_output_name=cachegrind.out.%t" />
+			<arg line="phpunit.php" />
+		</exec>
+		<antcall target="drop" />
+	</target>
+	
+	<target name="clean" description="Cleans the report directory.">
+		<delete file="${phpunit.agiledoc.outputfile}" />
+		<delete dir="${phpunit.coverage.outputdir}" />
+		<delete dir="${xdebug.profilingdir}" />
+		<delete file="${phploc.outputfile}" />
+		<delete file="${phpcpd.outputfile}" />
+		<delete dir="${pdepend.outputdir}" />
+		<delete dir="${phpdoctor.outputdir}" />
+	</target>
+	
+	<target name="tables" description="Builds the test tables.">
+		<echo>Building test tables</echo>
+		<sql driver="com.mysql.jdbc.Driver"
+		     url="jdbc:mysql://${mysql.hostname}:${mysql.port}"
+		     userid="${mysql.username}"
+		     password="${mysql.password}">
+			<classpath>
+				<pathelement location="${mysql.jdbcDriver}"/>
+			</classpath>
+			DROP SCHEMA IF EXISTS `${test.schema}`;
+			CREATE SCHEMA `${test.schema}`;
+			DROP SCHEMA IF EXISTS `${test.schema.comparison}`;
+			CREATE SCHEMA `${test.schema.comparison}`;
+		</sql>
+		<parallel>
+			<sql driver="com.mysql.jdbc.Driver"
+			     url="jdbc:mysql://${mysql.hostname}:${mysql.port}/${test.schema}"
+			     userid="${mysql.username}"
+			     password="${mysql.password}"
+			     src="${test.sqlscript}"
+				 encoding="UTF-8">
+				<classpath>
+					<pathelement location="${mysql.jdbcDriver}"/>
+				</classpath>
+			</sql>
+			<sql driver="com.mysql.jdbc.Driver"
+			     url="jdbc:mysql://${mysql.hostname}:${mysql.port}/${test.schema.comparison}"
+			     userid="${mysql.username}"
+			     password="${mysql.password}"
+			     src="${test.sqlscript}"
+				 encoding="UTF-8">
+				<classpath>
+					<pathelement location="${mysql.jdbcDriver}"/>
+				</classpath>
+			</sql>
+		</parallel>
+	</target>
+	
+	<target name="drop" description="Drop the test tables.">
+		<echo>Dropping test tables</echo>
+		<sql driver="com.mysql.jdbc.Driver"
+		     url="jdbc:mysql://${mysql.hostname}:${mysql.port}"
+		     userid="${mysql.username}"
+		     password="${mysql.password}">
+			<classpath>
+				<pathelement location="${mysql.jdbcDriver}"/>
+			</classpath>
+			DROP SCHEMA `${test.schema}`;
+			DROP SCHEMA `${test.schema.comparison}`;
+		</sql>
+	</target>
+	
+	<target name="install_pear_packages" description="Installs pear packages neccessary to run all the tasks">
+		<echo>Installing pear packages</echo>
+		<exec dir="${basedir}" executable="${pear.executable}">
+			<arg line="channel-update pear.php.net"/>
+		</exec>
+		<exec dir="${basedir}" executable="${pear.executable}">
+			<arg value="upgrade"/>
+		</exec>
+		<exec dir="${basedir}" executable="${pear.executable}">
+			<arg line="channel-discover pear.phpunit.de"/>
+		</exec>
+		<exec dir="${basedir}" executable="${pear.executable}">
+			<arg line="channel-discover components.ez.no"/>
+		</exec>
+		<exec dir="${basedir}" executable="${pear.executable}">
+			<arg line="channel-discover pear.pdepend.org"/>
+		</exec>
+		<exec dir="${basedir}" executable="${pear.executable}">
+			<arg line="channel-discover pear.phpmd.org"/>
+		</exec>
+		<exec dir="${basedir}" executable="${pear.executable}">
+			<arg line="install pear/PHP_CodeSniffer"/>
+		</exec>
+		<exec dir="${basedir}" executable="${pear.executable}">
+			<arg line="install phpunit/phpcpd phpunit/phploc phpunit/phpdcd-0.9.2"/>
+		</exec>
+		<exec dir="${basedir}" executable="${pear.executable}">
+			<arg line="install pdepend/PHP_Depend"/>
+		</exec>
+		<exec dir="${basedir}" executable="${pear.executable}">
+			<arg line="install phpmd/PHP_PMD"/>
+		</exec>
+	</target>
+</project>
