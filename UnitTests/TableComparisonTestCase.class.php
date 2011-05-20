@@ -23,6 +23,17 @@ abstract class TableComparisonTestCase extends PHPUnit_Framework_TestCase {
 		return $mysqli->insert_id;
 	}
 	
+	protected function replaceInto($tableName, array $values) {
+		$mysqli = $this->getConnection();
+		$fields = '(`'.implode('`, `', array_keys($values)).'`)';
+		$values = "('".implode("', '", $values)."')";
+		$mysqli->query("
+			REPLACE INTO `{$this->comparisonSchema}`.`$tableName`
+			$fields
+			VALUES $values");
+		return $mysqli->insert_id;
+	}
+	
 	protected function update($tableName, array $identifier, array $updateValues) {
 		$mysqli = $this->getConnection();
 		$whereFields = array();
