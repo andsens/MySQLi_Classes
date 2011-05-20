@@ -1,11 +1,8 @@
 <?php
 namespace MySQLi_Classes\Statements;
-use MySQLi_Classes\Exceptions\Assertion\TooFewAffectedRowsException;
-use MySQLi_Classes\Exceptions\Assertion\TooManyAffectedRowsException;
-
-class UpdateStatement extends Statement {
+class ReplaceStatement extends InsertStatement {
 	
-	protected static $queryTypeRegexp = '/^UPDATE( LOW_PRIORITY)?( IGNORE)?/';
+	protected static $queryTypeRegexp = '/^REPLACE( LOW_PRIORITY| DELAYED)? INTO/';
 	
 	private $assertAffectedRows = null;
 	
@@ -25,6 +22,8 @@ class UpdateStatement extends Statement {
 		switch($name) {
 			case 'rows':
 				return $this->statement->affected_rows;
+			default:
+				return parent::__get($name);
 		}
 	}
 	

@@ -44,11 +44,11 @@ abstract class Statement {
 			throw ErrorException::findClass(self::$mysqli, __LINE__);
 		if($paramTypes == null)
 			$paramTypes = '';
-		if($this->statement->param_count != strlen($this->paramTypes))
+		if($this->statement->param_count != strlen($this->paramTypes = $paramTypes))
 			throw new ParameterCountMismatchException('There is a mismatch between the number of statement variable types and parameters.');
 	}
 	
-	public function bindAndExecute(array $values = null) {
+	public function bindAndExecute(array &$values = null) {
 		if($values == null)
 			$values = array();
 		$statementValues = array($this->paramTypes);

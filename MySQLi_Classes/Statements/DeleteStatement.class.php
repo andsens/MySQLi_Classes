@@ -7,6 +7,8 @@ class DeleteStatement extends Statement {
 	
 	private $assertAffectedRows = null;
 	
+	protected static $queryTypeRegexp = '/^DELETE( LOW_PRIORITY)?( QUICK)?( IGNORE)?( FROM)?/';
+	
 	public function bindAndExecute(array $values) {
 		parent::bindAndExecute($values);
 		if($this->assertAffectedRows !== null) {

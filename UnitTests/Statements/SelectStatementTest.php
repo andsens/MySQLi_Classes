@@ -23,9 +23,8 @@ class SelectStatementTest extends PHPUnit_Framework_TestCase {
 		$stmt = new SelectStatement('SELECT NULL FROM DUAL', '');
 		$stmt->assertResultingRows = 1;
 		$stmt->bindAndExecute();
-		$null = 'something';
-		$vars = array(&$null);
-		$stmt->bindResult($vars);
+		$null = 'someting';
+		$stmt->bindResult($vars = array(&$null));
 		$stmt->fetch();
 		$this->assertNull($null);
 		$this->assertEquals(1, $stmt->rows);

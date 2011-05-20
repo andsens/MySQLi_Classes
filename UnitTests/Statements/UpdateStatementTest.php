@@ -1,11 +1,12 @@
 <?php
+use MySQLi_Classes\Statements\UpdateStatement;
 use MySQLi_Classes\Exceptions\Server\UnknownErrorException;
 use MySQLi_Classes\Statements\InsertStatement;
 use MySQLi_Classes\Statements\SelectStatement;
 use \Glucose\Entity as Entity;
 use \Glucose\EntityEngine as EntityEngine;
 
-class InsertStatementTest extends TableComparisonTestCase {
+class UpdateStatementTest extends TableComparisonTestCase {
 	
 	private static $mysqli;
 	
@@ -21,17 +22,14 @@ class InsertStatementTest extends TableComparisonTestCase {
 		return self::$mysqli;
 	}
 	
-	public function test_P_StandardInsert() {
-		$stmt = new InsertStatement("INSERT INTO `{$this->actualSchema}`.`cities`
-			(`country`, `name`, `postal_code`)
-			VALUES (?, ?, ?)", 'isi');
-		$countryID = 1;
-		$name = 'Esbjerg';
-		$postalCode = 6700;
-		$stmt->bindAndExecute($values = array($countryID, $name, $postalCode));
-		$insertID = $this->insertInto('cities', array('country' => $countryID, 'name' => $name, 'postal_code' => $postalCode));
-		$this->assertTablesEqual('cities');
-		$this->assertEquals($insertID, $stmt->insertID);
+	public function test_P_StandardUpdate() {
+		$stmt = new UpdateStatement("UPDATE `{$this->actualSchema}`.`people`
+			SET `last_name` = ? WHERE `id` = ?", 'si');
+		$name = 'And';
+		$id = 1;
+		$stmt->bindAndExecute($values = array($name, $id));
+		$insertID = $this->update('people', array('id' => 1), array('last_name' => 'And'));
+		$this->assertTablesEqual('people');
 	}
 	
 	protected function tearDown() {

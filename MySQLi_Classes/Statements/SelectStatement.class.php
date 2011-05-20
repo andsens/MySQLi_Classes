@@ -26,7 +26,7 @@ class SelectStatement extends Statement {
 		}
 	}
 	
-	public function bindResult(array $pointerArray) {
+	public function bindResult(array &$pointerArray) {
 		call_user_func_array(array(&$this->statement, 'bind_result'), $pointerArray);
 	}
 	
