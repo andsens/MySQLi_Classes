@@ -10,14 +10,14 @@ class ServerErrorException extends \MySQLi_Classes\Exceptions\ErrorException {
 	 */
 	public static function findClass(\mysqli $mysqli, $line) {
 		switch($mysqli->errno) {
-			case 1048: $exception = new BadNullException($mysqli->error, $mysqli->errno, null, $line); break;
-			case 1054: $exception = new BadFieldException($mysqli->error, $mysqli->errno, null, $line); break;
-			case 1062: $exception = new DuplicateEntryException($mysqli->error, $mysqli->errno, null, $line); break;
-			case 1064: $exception = new ParseErrorException($mysqli->error, $mysqli->errno, null, $line); break;
-			case 1149: $exception = new SyntaxErrorException($mysqli->error, $mysqli->errno, null, $line); break;
-			case 1364: $exception = new NoDefaultForFieldException($mysqli->error, $mysqli->errno, null, $line); break;
-			default:   $exception = new UnknownErrorException($mysqli->error, $mysqli->errno, null, $line); break;
+			case 1048: return new BadNullException($mysqli->error, $mysqli->errno, null, $line);
+			case 1054: return new BadFieldException($mysqli->error, $mysqli->errno, null, $line);
+			case 1062: return new DuplicateEntryException($mysqli->error, $mysqli->errno, null, $line);
+			case 1064: return new ParseErrorException($mysqli->error, $mysqli->errno, null, $line);
+			case 1142: return new TableAccessDeniedException($mysqli->error, $mysqli->errno, null, $line);
+			case 1149: return new SyntaxErrorException($mysqli->error, $mysqli->errno, null, $line);
+			case 1364: return new NoDefaultForFieldException($mysqli->error, $mysqli->errno, null, $line);
+			default:   return new UnknownErrorException($mysqli->error, $mysqli->errno, null, $line);
 		}
-		return $exception;
 	}
 }
