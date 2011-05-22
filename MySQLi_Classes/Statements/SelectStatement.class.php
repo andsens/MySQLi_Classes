@@ -38,8 +38,8 @@ class SelectStatement extends Statement {
 		switch($name) {
 			case 'rows':
 				return $this->statement->num_rows;
-			case 'stmt':
-				return $this->statement;
+			default:
+				return parent::__get($name);
 		}
 	}
 	

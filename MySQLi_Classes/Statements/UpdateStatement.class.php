@@ -25,6 +25,8 @@ class UpdateStatement extends Statement {
 		switch($name) {
 			case 'rows':
 				return $this->statement->affected_rows;
+			default:
+				return parent::__get($name);
 		}
 	}
 	

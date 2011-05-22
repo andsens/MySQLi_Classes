@@ -1,11 +1,9 @@
 <?php
 namespace MySQLi_Classes\Statements;
 use MySQLi_Classes\Exceptions\WrongQueryTypeException;
-
-use MySQLi_Classes\Exceptions\ConnectionException;
 use MySQLi_Classes\Exceptions\ErrorException;
 use MySQLi_Classes\Exceptions\ParameterCountMismatchException;
-abstract class Statement {
+class Statement {
 	
 	private static $mysqli;
 	
@@ -23,7 +21,7 @@ abstract class Statement {
 	 */
 	protected $paramTypes;
 	
-	protected static $queryTypeRegexp;
+	protected static $queryTypeRegexp = "//";
 	
 	public static function connect(\mysqli  $mysqli) {
 		self::$mysqli = $mysqli;
@@ -62,6 +60,13 @@ abstract class Statement {
 		$this->execute();
 		if(self::$mysqli->errno > 0)
 			throw ErrorException::findClass(self::$mysqli, __LINE__);
+	}
+	
+	public function __get($name) {
+		switch($name) {
+			case 'stmt':
+				return $this->statement;
+		}
 	}
 	
 	public function execute() {

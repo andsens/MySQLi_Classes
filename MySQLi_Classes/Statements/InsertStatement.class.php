@@ -8,6 +8,8 @@ class InsertStatement extends Statement {
 		switch($name) {
 			case 'insertID':
 				return $this->statement->insert_id;
+			default:
+				return parent::__get($name);
 		}
 	}
 }
