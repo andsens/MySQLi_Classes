@@ -6,5 +6,8 @@
 		<testsuite name="Statements">
 			<directory>Statements</directory>
 		</testsuite>
+		<testsuite name="Queries">
+			<directory>Queries</directory>
+		</testsuite>
 	</testsuites>
 </phpunit>

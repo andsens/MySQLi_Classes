@@ -1,16 +1,16 @@
 <?php
-namespace MySQLi_Classes\Statements;
+namespace MySQLi_Classes\Queries;
 use MySQLi_Classes\Exceptions\Assertion\TooFewAffectedRowsException;
 use MySQLi_Classes\Exceptions\Assertion\TooManyAffectedRowsException;
 
-class ReplaceStatement extends InsertStatement {
-	
-	protected static $queryTypeRegexp = '/^REPLACE( LOW_PRIORITY| DELAYED)? INTO/';
+class DeleteQuery extends Query {
 	
 	private $assertAffectedRows = null;
 	
-	public function bindAndExecute(array $values) {
-		parent::bindAndExecute($values);
+	protected static $queryTypeRegexp = '/^DELETE( LOW_PRIORITY)?( QUICK)?( IGNORE)?( FROM)?/';
+	
+	public function run() {
+		parent::run();
 		if($this->assertAffectedRows !== null) {
 			if($this->rows < $this->assertAffectedRows)
 				throw new TooFewAffectedRowsException(

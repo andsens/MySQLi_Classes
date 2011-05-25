@@ -15,6 +15,11 @@ class Statement {
 	protected $statement;
 	
 	/**
+	 * @var string
+	 */
+	private $sql;
+	
+	/**
 	 *
 	 * Enter description here ...
 	 * @var string
@@ -29,15 +34,18 @@ class Statement {
 	
 	/**
 	 *
-	 * Enter description here ...
+	 * Constructor for all inheriting statements. This behaviour should be the
+	 * same for every inheriting class, which is why it is final.
 	 * @param string $query
 	 * @param string $types
 	 * @throws MySQLi_Classes\Exceptions\ParameterCountMismatchException
+	 * @throws MySQLi_Classes\Exceptions\ErrorException
 	 */
-	public final function __construct($query, $paramTypes = null) {
-		if(preg_match(static::$queryTypeRegexp, $query) != 1)
+	public final function __construct($sql, $paramTypes = null) {
+		if(preg_match(static::$queryTypeRegexp, $sql) != 1)
 			throw new WrongQueryTypeException("The query type '".get_class($this)."' is not intended for that query.");
-		$this->statement = self::$mysqli->prepare($query);
+		$this->sql = $sql;
+		$this->statement = self::$mysqli->prepare($this->sql);
 		if(self::$mysqli->errno > 0)
 			throw ErrorException::findClass(self::$mysqli, __LINE__);
 		if($paramTypes == null)
@@ -66,6 +74,8 @@ class Statement {
 		switch($name) {
 			case 'stmt':
 				return $this->statement;
+			case 'sql':
+				return $this->sql;
 		}
 	}
 	
