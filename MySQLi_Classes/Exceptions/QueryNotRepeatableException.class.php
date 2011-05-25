@@ -1,5 +1,5 @@
 <?php
 namespace MySQLi_Classes\Exceptions;
-class QueryNotRepeatableException extends \LogicException {
+class QueryNotRepeatableException extends \LogicException implements Exception {
 	
 }
