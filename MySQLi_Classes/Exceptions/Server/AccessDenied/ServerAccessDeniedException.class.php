@@ -1,5 +1,5 @@
 <?php
 namespace MySQLi_Classes\Exceptions\Server\AccessDenied;
-class ServerAccessDeniedException extends ServerErrorException {
+class ServerAccessDeniedException extends AccessDeniedException {
 	
 }
