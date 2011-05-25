@@ -1,7 +1,7 @@
 <?php
 namespace MySQLi_Classes;
+use MySQLi_Classes\Exceptions\ConnectionException;
 use MySQLi_Classes\Queries\Query;
-
 use MySQLi_Classes\Statements\Statement;
 
 class Connector {
