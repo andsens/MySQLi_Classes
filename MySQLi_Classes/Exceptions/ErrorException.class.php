@@ -1,8 +1,7 @@
 <?php
 namespace MySQLi_Classes\Exceptions;
-use MySQLi_Classes\Exceptions\Client as C;
-use MySQLi_Classes\Exceptions\Server as S;
-use MySQLi_Classes\Exceptions\Server\AccessDenied as AD;
+use MySQLi_Classes\Exceptions\Client as Client;
+use MySQLi_Classes\Exceptions\Server as Server;
 class ErrorException extends \RuntimeException implements Exception {
 	
 	public function __construct($message = "", $code = 0, $previous = null, $line = null) {
@@ -43,7 +42,7 @@ class ErrorException extends \RuntimeException implements Exception {
 				default:   return new Server\UnknownErrorException($error, $errno, null, $line);
 			}
 		} elseif($errno >= 2000) {
-			return new ClientErrorException($error, $errno, null, $line);
+			return new Client\ClientErrorException($error, $errno, null, $line);
 		} else {
 			$exception = new ErrorException($error, $errno, null, $line);
 		}
