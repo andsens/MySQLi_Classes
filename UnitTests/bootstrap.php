@@ -1,6 +1,6 @@
 <?php
 use MySQLi_Classes\Connector;
-require_once 'UnitTests/autoloader.inc.php';
+require_once 'MySQLi_Classes/autoloader.inc.php';
 $properties = parse_ini_file('build.properties');
 $GLOBALS['mysqli'] = new MySQLi(
 	$properties['mysql.hostname'],
