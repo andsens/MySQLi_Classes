@@ -1,5 +1,7 @@
 <?php
 namespace MySQLi_Classes\Queries;
+use MySQLi_Classes\Connection;
+
 use MySQLi_Classes\Exceptions\QueryNotRepeatableException;
 
 use MySQLi_Classes\Exceptions\WrongQueryTypeException;
@@ -11,11 +13,7 @@ use \MySQLi_Classes\Exceptions\ErrorException;
 use MySQLi_Classes\Exceptions\ParameterCountMismatchException;
 abstract class Query {
 	
-	protected static $mysqli;
-	
-	public static function connect(\mysqli  $mysqli) {
-		self::$mysqli = $mysqli;
-	}
+	protected $mysqli;
 	
 	protected static $queryTypeRegexp = "//";
 	
@@ -47,20 +45,21 @@ abstract class Query {
 	/**
 	 * @param string $query
 	 */
-	public function __construct($sql) {
+	public final function __construct($sql, $connectionName = 'main') {
 		if(preg_match(static::$queryTypeRegexp, $sql) != 1)
 			throw new WrongQueryTypeException("The query type '".get_class($this)."' is not intended for that query.");
 		$this->sql = $sql;
+		$this->mysqli = Connection::getInstance($connectionName)->mysqli;
 	}
 	
 	public function run() {
 		if($this->result !== null && !$this->repeatable)
 			throw new QueryNotRepeatableException('This query has not been marked repeatable.');
-		$this->result = self::$mysqli->query($this->sql);
-		$this->errno = self::$mysqli->errno;
-		$this->error = self::$mysqli->error;
+		$this->result = $this->mysqli->query($this->sql);
+		$this->errno = $this->mysqli->errno;
+		$this->error = $this->mysqli->error;
 		if($this->errno > 0)
-			throw ErrorException::findClass(self::$mysqli, __LINE__);
+			throw ErrorException::findClass($this->mysqli, __LINE__);
 	}
 	
 	public function __get($name) {

@@ -10,7 +10,7 @@ class InsertQuery extends Query {
 	private $insertID;
 	protected function run() {
 		parent::run();
-		$this->insertID = self::$mysqli->insert_id;
+		$this->insertID = $this->mysqli->insert_id;
 	}
 	
 	public function __get($name) {

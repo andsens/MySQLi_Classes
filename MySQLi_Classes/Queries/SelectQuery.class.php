@@ -24,8 +24,8 @@ class SelectQuery extends Query implements \Iterator, \Countable {
 	
 	public function run() {
 		parent::run();
-		self::$mysqli->store_result();
-		$this->fieldCount = self::$mysqli->field_count;
+		$this->mysqli->store_result();
+		$this->fieldCount = $this->mysqli->field_count;
 		$this->resultingRows = $this->result->num_rows;
 		$this->iteratorPosition = -1;
 		$this->resultSetPosition = -1;

@@ -1,11 +1,13 @@
 <?php
 namespace MySQLi_Classes\Statements;
+use MySQLi_Classes\Connection;
+
 use MySQLi_Classes\Exceptions\WrongQueryTypeException;
 use MySQLi_Classes\Exceptions\ErrorException;
 use MySQLi_Classes\Exceptions\ParameterCountMismatchException;
 class Statement {
 	
-	private static $mysqli;
+	private $mysqli;
 	
 	/**
 	 *
@@ -28,10 +30,6 @@ class Statement {
 	
 	protected static $queryTypeRegexp = "//";
 	
-	public static function connect(\mysqli  $mysqli) {
-		self::$mysqli = $mysqli;
-	}
-	
 	/**
 	 *
 	 * Constructor for all inheriting statements. This behaviour should be the
@@ -41,13 +39,14 @@ class Statement {
 	 * @throws MySQLi_Classes\Exceptions\ParameterCountMismatchException
 	 * @throws MySQLi_Classes\Exceptions\ErrorException
 	 */
-	public final function __construct($sql, $paramTypes = null) {
+	public final function __construct($sql, $paramTypes = null, $connectionName = 'main') {
 		if(preg_match(static::$queryTypeRegexp, $sql) != 1)
 			throw new WrongQueryTypeException("The query type '".get_class($this)."' is not intended for that query.");
 		$this->sql = $sql;
-		$this->statement = self::$mysqli->prepare($this->sql);
-		if(self::$mysqli->errno > 0)
-			throw ErrorException::findClass(self::$mysqli, __LINE__);
+		$this->mysqli = Connection::getInstance($connectionName)->mysqli;
+		$this->statement = $this->mysqli->prepare($this->sql);
+		if($this->mysqli->errno > 0)
+			throw ErrorException::findClass($this->mysqli, __LINE__);
 		if($paramTypes == null)
 			$paramTypes = '';
 		if($this->statement->param_count != strlen($this->paramTypes = $paramTypes))
@@ -66,8 +65,8 @@ class Statement {
 		if($noParams > 0)
 			call_user_func_array(array(&$this->statement, 'bind_param'), $statementValues);
 		$this->execute();
-		if(self::$mysqli->errno > 0)
-			throw ErrorException::findClass(self::$mysqli, __LINE__);
+		if($this->mysqli->errno > 0)
+			throw ErrorException::findClass($this->mysqli, __LINE__);
 	}
 	
 	public function __get($name) {
